@@ -14,4 +14,4 @@ Let's break down this line of code. We start with `Brain.Screen.print`. The . ca
 
 Then, we move onto `print("Hello World!")`. This is called a function, which performs some action, in this case printing some text to the screen. After print, we then give it some text inside the `()`. Things given to a function inside the `()` are called arguments, some functions require them and some don't. With this, our english translation for this line becomes "In the brain, go to the screen. In the screen, print "Hello World!".
 
-Finally we get to the semicolon. **FOR THE LOVE OF GOD DON'T FORGET THE SEMICOLON**  `;` acts as the period of c++. It basically tells the computer that your done with that command.
+Finally we get to the semicolon. **FOR THE LOVE OF GOD DON'T FORGET THE SEMICOLON.**  `;` acts as the period of c++. It basically tells the computer that your done with that command.
