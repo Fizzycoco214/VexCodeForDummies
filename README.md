@@ -1,10 +1,4 @@
-# Vex Code For Dummies
-*A Vex library for the rest of us!*
-
-
-![When you](dummies.png)
-
-Vex Code for dummies is a library (*really just a header file*) full of useful functions and classes for programming vex robots.
+This is a library full of useful functions and classes for programming vex robots.
 
 If you're new to coding I've also included some tutorials for getting started.
 
