@@ -121,7 +121,7 @@ Vector2()
 Vector2(float x, float y)
 ```
 
-==Examples==
+**Examples**
 - `Vector2 targetPosition;`
 - `Vector2 position = Vector2(120,-400);`
 - `float currentX = position.x;`
@@ -129,14 +129,37 @@ Vector2(float x, float y)
 
 ## Vector2 Functions
 ```c++
-angleToVector(float angle, ::rotationUnit unit)
+angleToVector(float angle)
 ```
--Converts an angle of specified units into a vector
+-Converts an angle in degrees into a vector
 
+***
 
 ```c++
+vectorToAngle(Vector2 vector)
+```
+-Converts a vector into an angle in degrees
 
+```c++
+Distance(Vector2 p1, Vector2 p2)
+```
+-Returns the distance between two points
 
+***
+
+```c++
+lerp(Vector2 v1, Vector2 v2, float t)
+```
+-Linearly interpolates between two points, see [Lerp](https://github.com/Fizzycoco214/SpinUpLibrary/blob/main/Documentation.md#utility-functions)
+
+***
+
+```c++
+inBounds(Vector2 val, Vector2 p1, Vector2 p2)
+```
+-Returns true if val is within the bounds of p1 and p2, see [inBounds](https://github.com/Fizzycoco214/SpinUpLibrary/blob/main/Documentation.md#utility-functions)
+
+```
 
 
 
