@@ -17,12 +17,14 @@ enum rotationUnits
     Degrees, Radians
 };
 
+//Returns the 1 if num > 0, -1 otherwise
 int signOf(float num)
 {
   if(num == 0){return 1;}
   return abs(num) / num;
 }
 
+//Returns lesser of two numbers
 float min(float x, float y)
 {
     if(x < y)
@@ -32,6 +34,7 @@ float min(float x, float y)
     return y;
 }
 
+//Returns greater of two numbers
 float max(float x, float y)
 {
     if(x > y)
@@ -41,6 +44,7 @@ float max(float x, float y)
     return y;
 }
 
+//Returns min if val < min, max if val > max, returns val otherwise
 float clamp(float val, float min, float max)
 {
     if(val < min){return min;}
@@ -48,6 +52,7 @@ float clamp(float val, float min, float max)
     return val;
 }
 
+//Works like % but for negative numbers
 float wrap(float val, float lowerBound, float upperBound, float increment)
 {
   while(val > upperBound || val < lowerBound)
@@ -58,16 +63,20 @@ float wrap(float val, float lowerBound, float upperBound, float increment)
   return val;
 }
 
+//Returns true if val is within the lower and upper bound
 bool inBounds(float val, float lowerBound, float upperBound)
 {
   return (lowerBound < val && val < upperBound);
 }
 
 
+//Converts degrees to radians
 float degToRad(float deg){return deg * (PI / 180);}
 
+//Converts radians to degrees
 float radToDeg(float rad){return rad * (180 / PI);}
 
+//Wraps a value from 0 to 360
 float wrap360(float val, ::rotationUnits unit)
 {
     if(unit == Radians){val = radToDeg(val);}
@@ -79,6 +88,7 @@ float wrap360(float val, ::rotationUnits unit)
     return val;
 }
 
+//Wraps a value from -180 to 180
 float wrapNegative180To180(float val, ::rotationUnits unit)
 {
     if(unit == Radians){val = radToDeg(val);}
@@ -90,6 +100,7 @@ float wrapNegative180To180(float val, ::rotationUnits unit)
     return val;
 }
 
+//Returns the difference between two angles
 float angleDifference(float angle1, float angle2, ::rotationUnits unit)
 {
   if(unit == Radians){angle1 = radToDeg(angle1); angle2 = radToDeg(angle2);}
@@ -162,17 +173,20 @@ struct Vector2
  #pragma endregion Vector2 Operators
 };
 
+//Converts an angle into a normalized vector
 Vector2 angleToVector(float angle)
 {
   angle = degToRad(angle);
   return Vector2(cos(angle), sin(angle));
 }
 
+//Converts a normalized vector into an angle in degrees
 float vectorToAngle(Vector2 vector)
 {
   return wrap360(radToDeg(atan2(vector.y, vector.x)), Degrees);
 }
 
+//Returns the distance between two points
 float Distance(Vector2 p1, Vector2 p2)
 {
   float dx = p2.x - p1.x;
@@ -181,6 +195,7 @@ float Distance(Vector2 p1, Vector2 p2)
   return sqrt((dx * dx) + (dy * dy));
 }
 
+//Linearly interpolates between two points
 float lerp(float val1, float val2, float t)
 {
   t = clamp(t,0,1);
@@ -188,11 +203,13 @@ float lerp(float val1, float val2, float t)
   return (t * (val2 - val1)) + val1;
 }
 
+//Linearly interpolates between two points
 Vector2 lerp(Vector2 vector1, Vector2 vector2, float t)
 {
   return Vector2(lerp(vector1.x, vector2.x, t), lerp(vector1.y, vector2.y, t));
 }
 
+//Returns true if val is between the point 1 and 2
 bool inBounds(Vector2 val, Vector2 p1, Vector2 p2)
 {
   if(inBounds(val.x, min(p1.x,p2.x), max(p1.x, p2.x)) && inBounds(val.y, min(p1.y,p2.y), max(p1.y, p2.y)))
@@ -241,6 +258,11 @@ class chassis
     RightMiddle = RMiddle;
     RightFront = RBack;
   }
+
+  /*
+  Lots of repeated functions here, does pretty much the same 
+  thing as a vex drivetrain but for 6 motors
+  */
 
   void setLeftSideVelocity(float percentage, vex::percentUnits unit){
     (LeftFront).setVelocity(percentage, unit);
@@ -386,6 +408,7 @@ class chassis
     }
   }
 
+  //Drives for the specified amount of time before stoping
   void DriveFor(float time, vex::timeUnits unit, vex::directionType direction)
   {
     setVelocity(100,vex::percent);
@@ -435,6 +458,7 @@ class Odometer
     milimetersPerDegree = 2 * PI * wheelRadius * gearRatio / motorRPM;
   }
 
+  //Finds the distance that the robot moved since it's last check
   Vector2 CalculateDeltaPos()
   {
     Vector2 deltaVector;
@@ -447,7 +471,8 @@ class Odometer
     leftDistance = (Drivetrain).LeftFront.position(vex::degrees);
     rightDistance = (Drivetrain).RightFront.position(vex::degrees);
 
-    deltaVector = direction * ((deltaLeft + deltaRight) / 2) * milimetersPerDegree;
+    //The robot knows where it is because it knows where it isn't
+    deltaVector = direction * ((deltaLeft + deltaRight) / 2) * milimetersPerDegree; 
     return deltaVector;
   }
 
@@ -459,7 +484,8 @@ class Odometer
     (Drivetrain).RightFront.resetPosition();
     while(true)
     {
-      position = position + CalculateDeltaPos();
+      //Integral of velocity = position
+      position = position + CalculateDeltaPos(); 
       wait(5,vex::msec);
     }
   }
@@ -468,9 +494,10 @@ class Odometer
 
 
 /*
-#########################
-          PID
-#########################
+#############################################
+                    PID
+(Proportional Integral Derivative Controller)
+#############################################
 */
 
 class PID
@@ -561,13 +588,13 @@ class PID
     float d = error - previousDriveError;
 
     error = (p * pRatio) + (integralDriveSum * iRatio) + (d * dRatio);
-    //error = (error * error * error) / 250;
     previousDriveError = error;
     return error;
   }
 
   float lastTime = 0;
   float lastTimeout = 0;
+  //Checks if the robot is close enough to our target to be acceptable
   bool CloseEnough()
   {
     if(lastTimeout + 5 < timerBrain->Timer.time(vex::seconds))
@@ -575,7 +602,7 @@ class PID
       return true;
     }
 
-    if(abs(previousTurnError) >= angleMargin || abs(previousDriveError) >= positionMargin)
+    if(abs(previousTurnError) >= angleMargin /*|| abs(previousDriveError) >= positionMargin*/)
     {
       lastTime = timerBrain->Timer.time(vex::msec);
       return false;
@@ -605,6 +632,7 @@ class PID
     PIDactive = true;
   }
 
+  //Turn an amount of degrees left or right
   void Turn(float angle, ::rotationUnits unit)
   {
     if(unit == Radians)
