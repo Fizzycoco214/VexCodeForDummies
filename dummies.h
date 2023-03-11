@@ -355,6 +355,7 @@ class chassis
       (RightBack).spin(vex::forward);
     }
   }
+
   void turn(turningDirection direction, float voltage, vex::voltageUnits unit){
     if(direction == Right)
     {
@@ -377,6 +378,7 @@ class chassis
       (RightBack).spin(vex::forward,voltage,unit);
     }
   }
+
   void turn(turningDirection direction, float percentage, vex::percentUnits unit){
     (LeftFront).setVelocity(percentage, unit);
     (LeftMiddle).setVelocity(percentage, unit);
@@ -555,11 +557,7 @@ class PID
     integralDriveSum = 0;
   }
 
-  /*Coding sometimes is like sailing a ship execpt
-  you have no idea how to sail a ship and your only map
-  is a kindergardener's art project.
-
-  This is one of those times*/
+  //These two functions find
   float CalculateTurningError()
   {
     float curRotation = (*inertial).heading(vex::degrees);
@@ -698,6 +696,9 @@ class PID
 };
 
 
+//####################################################
+// EVERYTHING PAST THIS POINT IS STILL WIP AND NOT USED
+//####################################################
 
 struct Path
 {
