@@ -76,7 +76,7 @@ while(true)
 }
 ```
 
-#Tuning the variables
+# Tuning the variables
 There's not an exact science to tuning the variables but I do have a general process:
 - Start at around p = 0.3, i = 0, d = 0.1 
 - See how the system does with these variables
