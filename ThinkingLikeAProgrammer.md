@@ -39,3 +39,12 @@
 7. Try to apply common code patterns to your project
    - Learning common code patterns makes tons of projects easy
  
+8. Try to make future you's job easier
+   - Making variables accessible and tweaks easy to make will save you time in the long run
+
+9. Consider dependancy
+   - Make sure you know what a block of code affects before you change it
+
+10. Have Fun
+   - Coding doesn't have to be a boring task
+   - Try some creative projects (like [the Mandlebrot Set](brot.md))
