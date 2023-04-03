@@ -47,4 +47,4 @@
 
 10. Have Fun
    - Coding doesn't have to be a boring task
-   - Try some creative projects (like [the Mandlebrot Set](brot.md))
+   - Try some creative projects (like [the Mandlebrot Set](mandlebrotTutorial.md))
