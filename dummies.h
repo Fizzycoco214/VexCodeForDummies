@@ -10,6 +10,8 @@
 #########################
 */
 
+#pragma region Utility Functions
+
 float PI = 3.14159265359;
 
 enum rotationUnits
@@ -118,12 +120,14 @@ float angleDifference(float angle1, float angle2, ::rotationUnits unit)
   if(unit == Radians){angle = degToRad(angle);}
   return angle;
 }
+#pragma endregion Utility Fuctions
 
 /*
 #########################
       Vector 2
 #########################
 */
+
 
 struct Vector2
 {
@@ -173,6 +177,8 @@ struct Vector2
  #pragma endregion Vector2 Operators
 };
 
+#pragma region Vector2 Functions
+
 //Converts an angle into a normalized vector
 Vector2 angleToVector(float angle)
 {
@@ -219,6 +225,8 @@ bool inBounds(Vector2 val, Vector2 p1, Vector2 p2)
   return false;
 }
 
+#pragma endregion Vector2 Functions
+
 /*
 #########################
        Drivetrain
@@ -232,7 +240,8 @@ enum turningDirection
 
 class chassis
 {
-  //when the pointer is pointing!!!
+  //when the motors are assigned!?!
+  //Cause jank(motors not having a default constructor) we have to assign it to a random port then assign it to what we actually want
   public:
   vex::motor LeftFront = vex::motor(vex::PORT21);
   vex::motor LeftMiddle = vex::motor(vex::PORT21);
@@ -249,7 +258,6 @@ class chassis
 
   chassis(vex::motor LFront, vex::motor LMiddle, vex::motor LBack, vex::motor RFront, vex::motor RMiddle, vex::motor RBack)
   {
-
     LeftBack = LFront;
     LeftMiddle = LMiddle;
     LeftBack = LBack;
@@ -264,6 +272,7 @@ class chassis
   thing as a vex drivetrain but for 6 motors
   */
 
+  #pragma region Drivetrain Functions
   void setLeftSideVelocity(float percentage, vex::percentUnits unit){
     (LeftFront).setVelocity(percentage, unit);
     (LeftMiddle).setVelocity(percentage, unit);
@@ -419,6 +428,7 @@ class chassis
     stop();
   }
   #pragma endregion DriveAndTurnCommands
+  #pragma endregion Drivetrain Functions
 };
 
 /*
@@ -473,11 +483,10 @@ class Odometer
     leftDistance = (Drivetrain).LeftFront.position(vex::degrees);
     rightDistance = (Drivetrain).RightFront.position(vex::degrees);
 
-    //The robot knows where it is because it knows where it isn't
+    /*The robot knows where it is at all times. It knows this because it knows where it isn't.*/
     deltaVector = direction * ((deltaLeft + deltaRight) / 2) * milimetersPerDegree; 
     return deltaVector;
   }
-
 
 
   void OdomLoop()
@@ -517,7 +526,6 @@ class PID
   float dRatio;
 
   float angleMargin;
-  float positionMargin;
   float closeWaitTime;
 
   float integralTurnSum = 0;
@@ -550,7 +558,6 @@ class PID
     iRatio = i;
     dRatio = d;
     angleMargin = angle_margin;
-    positionMargin = position_margin;
     closeWaitTime = waitTime;
 
     integralTurnSum = 0;
@@ -649,20 +656,6 @@ class PID
     PIDactive = true;
   }
 
-  void DriveTo(Vector2 position)
-  {
-    lastTime = (*timerBrain).Timer.time();
-
-    targetAngle = vectorToAngle(position - odometer.position);
-    targetPosition = position;
-
-    startingPos = odometer.position;
-    lastTimeout = timerBrain->Timer.time(vex::seconds);
-
-    integralTurnSum = 0;
-    integralDriveSum = 0;
-    PIDactive = true;
-  }
 
   void PIDLoop()
   {
@@ -673,18 +666,18 @@ class PID
         float curRotation = (*inertial).heading(vex::degrees);
         
         float turnError = CalculateTurningError();
-        float driveError = 0;//CalculateDrivingError() / 2;
+        float driveError = 0;
 
-        timerBrain->Screen.setCursor(1,1);
-        (*timerBrain).Screen.print(driveError);
+        //timerBrain->Screen.setCursor(1,1);
+        //(*timerBrain).Screen.print(driveError);
 
         (*Chassis).setLeftSideVelocity(-driveError - turnError, vex::percent);
         (*Chassis).setRightSideVelocity(driveError - turnError, vex::percent);
         (*Chassis).drive(vex::forward);
         if(CloseEnough())
         {
-          timerBrain->Screen.setCursor(3,1);
-          timerBrain->Screen.print("CLOSE!!!!!!");
+          //timerBrain->Screen.setCursor(3,1);
+          //timerBrain->Screen.print("CLOSE!!!!!!");
           PIDactive = false;
         }
         wait(5,vex::msec);
@@ -695,132 +688,30 @@ class PID
   }
 };
 
-
-//####################################################
-// EVERYTHING PAST THIS POINT IS STILL WIP AND NOT USED
-//####################################################
-
-struct Path
-{
-  std::vector<Vector2> points;
-
-  Path()
-  {
-  }
-
-  void addPoint(Vector2 point)
-  {
-    points.push_back(point);
-  }
-
-};
-
-class Pursuit
+class Robot
 {
   public:
-  Path path;
-  
-  float lookAheadDistance;
-
-  chassis Chassis;
-  PID pid;
   Odometer odometer;
+  chassis Drivetrain;
+  PID pid;
 
-  Pursuit(float lookAhead, chassis Drivetrain, PID Pid, Odometer Odom)
+  Robot()
   {
-    lookAheadDistance = lookAhead;
-    Chassis = Drivetrain;
-    pid = Pid;
-    odometer = Odom;
+
   }
 
-  bool FoundGoalPoint = false;
-
-  Vector2 FindGoalPoint()
+  void addChassis(vex::motor LFront, vex::motor LMiddle, vex::motor LBack, vex::motor RFront, vex::motor RMiddle, vex::motor RBack)
   {
-    Vector2 goal;
-
-    FoundGoalPoint = false;
-    
-    Vector2 pos = (odometer).position;
-
-    Vector2 lastPoint = path.points[1];
-    if(Distance(lastPoint, pos) < lookAheadDistance)
-    {
-      FoundGoalPoint = false;
-      return lastPoint;
-    }
-
-    
-    //When the math makes no sense!!!
-    for(int i = path.points.size(); i > 0; i--)
-    {
-      if(Distance(path.points[i], odometer.position) < lookAheadDistance)
-      {
-        return path.points[i + 1];
-      }
-
-      /*Vector2 p1 = path.points[i - 1] - pos;
-      Vector2 p2 = path.points[i] - pos;
-
-      float dx = p2.x - p1.x;
-      float dy = p2.y - p1.y;
-
-      float dr = sqrt((dx * dx) + (dy * dy));
-      float D = (p1.x * p2.y) - (p2.x * p1.y);
-
-      float discriminate = (pow(lookAheadDistance, 2) * pow(dr, 2)) - pow(D,2);
-
-      if(discriminate <= 0)
-      {
-        continue;
-      }  
-      else
-      {
-        //???????
-        float x1 = ((D * dy) + (signOf(dy) * dx * sqrt(discriminate))) / pow(dr,2);
-        float y1 = ((-D * dx) + (abs(dy) * sqrt(discriminate))) / pow(dr,2);
-        
-        float x2 = ((D * dy) - (signOf(dy) * dx * sqrt(discriminate))) / pow(dr,2);
-        float y2 = ((-D * dx) - (abs(dy) * sqrt(discriminate))) / pow(dr,2);
-
-        Vector2 goalPoint1 = Vector2(x1,y1);
-        Vector2 goalPoint2 = Vector2(x2,y2);
-        
-        if(Distance(goalPoint1, p2) < Distance(goalPoint2, p2) && inBounds(goalPoint1, p1, p2))
-        {
-          goal = goalPoint1;
-          FoundGoalPoint = true;
-          break;
-        }
-        else if(inBounds(goalPoint2,p1,p2))
-        {
-          FoundGoalPoint = true;
-          goal = goalPoint2;
-          break;
-        }
-      }*/
-    }
-
-    return goal;
+    Drivetrain =  chassis(LFront,LMiddle,LBack,RFront,RMiddle,RBack);
   }
 
-  void FollowPath(Path directions)
+  void addOdometer(vex::inertial inertia, Vector2 pos ,float wheelRadius, float gearRatio, float motorRPM)
   {
-    path = directions;
-    Vector2 lastPoint = directions.points[directions.points.size() - 1];
-    while(Distance(lastPoint, odometer.position) > 50)
-    {
-      Chassis.drive(vex::forward);
+    odometerd = Odometer(Drivetrain, inertia, pos, wheelRadius, gearRatio, motorRPM);
+  }
 
-      Vector2 goalPoint = FindGoalPoint();
-
-      float turningError = angleDifference(vectorToAngle(goalPoint - odometer.position), odometer.Inertial.heading(), Degrees);
-      float drivingError = Distance(lastPoint, odometer.position);
-
-      Chassis.setLeftSideVelocity(-drivingError - turningError, vex::percent);
-      Chassis.setLeftSideVelocity(drivingError - turningError, vex::percent);
-    }
-    Chassis.stop();
-  } 
+  void addPID(vex::brain Brain, chassis driveTrain, Odometer odom, vex::inertial Inertial, float p = 0.3, float i = 0.1, float d = 0.1, float angle_margin = 1, float waitTime = 0.1)
+  {
+    pid = PID(Brain, driveTrain, odometer, odometer.Inertial, p,i,d, angle_margin, waitTime);
+  }
 };
