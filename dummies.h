@@ -671,8 +671,8 @@ class PID
         //timerBrain->Screen.setCursor(1,1);
         //(*timerBrain).Screen.print(driveError);
 
-        (*Chassis).setLeftSideVelocity(-driveError - turnError, vex::percent);
-        (*Chassis).setRightSideVelocity(driveError - turnError, vex::percent);
+        (*Chassis).setLeftSideVelocity(driveError + turnError, vex::percent);
+        (*Chassis).setRightSideVelocity(-driveError - turnError, vex::percent);
         (*Chassis).drive(vex::forward);
         if(CloseEnough())
         {
