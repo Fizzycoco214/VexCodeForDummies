@@ -1,3 +1,5 @@
+![](dummies.png)
+
 This is a library full of useful functions and classes for programming vex robots.
 
 If you're new to coding I've also included some tutorials for getting started.
