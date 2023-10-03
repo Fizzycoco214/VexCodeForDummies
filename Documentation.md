@@ -158,8 +158,3 @@ lerp(Vector2 v1, Vector2 v2, float t)
 inBounds(Vector2 val, Vector2 p1, Vector2 p2)
 ```
 -Returns true if val is within the bounds of p1 and p2, see [inBounds](https://github.com/Fizzycoco214/SpinUpLibrary/blob/main/Documentation.md#utility-functions)
-
-```
-
-
-
